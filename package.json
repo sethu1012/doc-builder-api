@@ -1,0 +1,23 @@
+{
+  "name": "doc-builder-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node src\\index.ts"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^6.3.1",
+    "adm-zip": "^0.5.9",
+    "canvas": "^2.9.1",
+    "fabric": "^5.2.1",
+    "fastify": "^3.29.0",
+    "jspdf": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/fabric": "^4.5.7",
+    "@types/node": "^17.0.33",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4"
+  }
+}
