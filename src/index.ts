@@ -12,7 +12,7 @@ import AdmZip from "adm-zip";
 var faker = require("@faker-js/faker").faker;
 
 interface IFabricObj {
-  fabricObj: fabric.IStaticCanvasOptions[];
+  fabricObjects: fabric.IStaticCanvasOptions[];
   name?: string;
   count: number;
 }
@@ -32,22 +32,21 @@ fastify.register(fastifyStatic, {
   root: path.join(__dirname, "..", "public"),
 });
 
-// fastify.get<{
-//   Querystring: IQueryString;
-// }>("/", async (request, reply) => {
-//   const { folder, name }: IQueryString = request.query;
-//   const filePath = path.join(__dirname, "..", "data", folder, name + ".zip");
-//   console.log(filePath, existsSync(filePath));
-//   if (existsSync(filePath)) {
-//     const stream = createReadStream(filePath);
-//     return reply
-//       .header("Content-Disposition", `attachment;`)
-//       .header("Content-Type", "application/zip")
-//       .send(stream);
-//   } else {
-//     return reply.status(404).send();
-//   }
-// });
+fastify.get<{
+  Querystring: IQueryString;
+}>("/download", async (request, reply) => {
+  const { folder, name }: IQueryString = request.query;
+  const filePath = path.join(__dirname, "..", "data", folder, name + ".zip");
+  if (existsSync(filePath)) {
+    const stream = createReadStream(filePath);
+    return reply
+      .header("Content-Disposition", `attachment;`)
+      .header("Content-Type", "application/zip")
+      .send(stream);
+  } else {
+    return reply.status(404).send();
+  }
+});
 
 fastify.get("/", async (_request, reply) => {
   return reply.sendFile("index.html");
@@ -57,15 +56,18 @@ fastify.post<{
   Body: IFabricObj;
 }>("/", async (request, reply) => {
   try {
-    const { fabricObj, name = "File", count = 0 }: IFabricObj = request.body;
-    console.log("\n\n\n\n\nName: " + request.body.name + " \n\n\n\n\n");
+    const {
+      fabricObjects,
+      name = "File",
+      count = 1,
+    }: IFabricObj = request.body;
     const folder = nanoid();
     const zip = new AdmZip();
     const allPromises: any = [];
     for (let i = 0; i < count; i++) {
       const doc = new jsPDF();
       let index = 0;
-      for (let page of fabricObj) {
+      for (let page of fabricObjects) {
         const fab: IStaticCanvasOptions = page;
         const { height, width } = fab.backgroundImage as fabric.Image;
         const canvas = new fabric.StaticCanvas(null, {
