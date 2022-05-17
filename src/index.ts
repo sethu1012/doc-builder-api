@@ -1,5 +1,6 @@
 import server from "fastify";
 import fastifyCors from "@fastify/cors";
+import fastifyStatic from "@fastify/static";
 import { fabric } from "fabric";
 import { createReadStream, existsSync, mkdirSync } from "fs";
 import jsPDF from "jspdf";
@@ -27,21 +28,29 @@ fastify.register(fastifyCors, {
   origin: "*",
 });
 
-fastify.get<{
-  Querystring: IQueryString;
-}>("/", async (request, reply) => {
-  const { folder, name }: IQueryString = request.query;
-  const filePath = path.join(__dirname, "..", "data", folder, name + ".zip");
-  console.log(filePath, existsSync(filePath));
-  if (existsSync(filePath)) {
-    const stream = createReadStream(filePath);
-    return reply
-      .header("Content-Disposition", `attachment;`)
-      .header("Content-Type", "application/zip")
-      .send(stream);
-  } else {
-    return reply.status(404).send();
-  }
+fastify.register(fastifyStatic, {
+  root: path.join(__dirname, "..", "public"),
+});
+
+// fastify.get<{
+//   Querystring: IQueryString;
+// }>("/", async (request, reply) => {
+//   const { folder, name }: IQueryString = request.query;
+//   const filePath = path.join(__dirname, "..", "data", folder, name + ".zip");
+//   console.log(filePath, existsSync(filePath));
+//   if (existsSync(filePath)) {
+//     const stream = createReadStream(filePath);
+//     return reply
+//       .header("Content-Disposition", `attachment;`)
+//       .header("Content-Type", "application/zip")
+//       .send(stream);
+//   } else {
+//     return reply.status(404).send();
+//   }
+// });
+
+fastify.get("/", async (_request, reply) => {
+  return reply.sendFile("index.html");
 });
 
 fastify.post<{
